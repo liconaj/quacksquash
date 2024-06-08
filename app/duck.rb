@@ -2,8 +2,6 @@ class Duck
     attr_gtk
     attr_sprite
 
-    #attr_accessor :x, :y
-
     def initialize args, x: 0, y: 0
         @args = args
         @x = x
@@ -61,9 +59,8 @@ class Duck
             @dx = -@dx * 0.4
         end
         @x = @x.clamp(left_limit, right_limit)
-        @y = @y.clamp(0.03 * state.world.h, 0.95 * state.world.h)
+        @y = @y.clamp(0.03 * state.world.h, state.world.h)
 
-        #outputs.debug << "x: #{@x}"
     end
 
     def calc
@@ -74,6 +71,6 @@ class Duck
     end
 
     def render
-        outputs[:scene].sprites << self
+        outputs.sprites << self
     end
 end

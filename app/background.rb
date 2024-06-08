@@ -1,41 +1,34 @@
 class Background
     attr_gtk
+    attr_sprite
 
-    def initialize args
+    def initialize args, x: 0, y: 0
         @args = args
-        @tile_w = grid.w/3
-        @tile_h = grid.h/1.9
+        @x = x
+        @y = y
+        @w = grid.w / 2
+        @h = grid.h / 1.2
     end
 
     def calc
-        @x_offset = state.camera.scene_position.x * 0.1 + state.camera.scale
-        @y_offset = state.camera.scene_position.y * 0.1 + state.camera.scale
+        
     end
 
     def render
         # wall
-        outputs.solids << {x: 0, y:0, w: state.world.w, h: state.world.w, r: 230, g: 240, b: 230}
+        outputs.solids << {x: 0, y:0, w: state.world.w, h: state.world.w, r: 200, g: 220, b: 200}
 
         # bathtiles
         for i in 0..4
-            for j in 0..1
+            for j in 0..0
                 outputs.sprites << {
-                    x: i * @tile_w + @x_offset,
-                    y: j * @tile_h + @y_offset,
-                    w: @tile_w,
-                    h: @tile_h,
+                    x: i * @w + @x * 0.3,
+                    y: j * @h + @y * 0.4,
+                    w: @w,
+                    h: @h,
                     path: "sprites/bathroom_tile.png"
                 }
             end
         end
-
-        #bathtube
-        outputs[:scene].sprites << {
-            x: 0,
-            y: 0,
-            w: state.world.w,
-            h: 1500,
-            path: "sprites/bathtube.jpg"
-        }
     end
 end

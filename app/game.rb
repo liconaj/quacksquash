@@ -2,6 +2,7 @@ require "app/duck"
 require "app/water"
 require "app/camera"
 require "app/background"
+require "app/bathtube"
 
 class Game
     attr_gtk
@@ -13,43 +14,35 @@ class Game
     end
 
     def defaults
-        state.world.w ||= 3500
-        state.world.h ||= 2000
+        state.world.w ||= 5000
+        state.world.h ||= grid.h
 
-        state.duck ||= Duck.new(args, x: 1000, y: state.world.h * 0.54)
-        state.water ||= Water.new(args, h: state.world.h * 0.60)
-        state.camera ||= Camera.new(args, x: state.duck.x, y: state.duck.y, scale: 0.85)
-        state.background ||= Background.new(args)
+        state.duck ||= Duck.new(args, x: 1000, y: state.world.h * 0.5)
+        state.water ||= Water.new(args, h: state.world.h * 0.50)
+        state.camera ||= Camera.new(args, x: state.duck.x, y: state.duck.y, zoom: 1)
+        state.background ||= Background.new(args, x:0, y: 0)
+        state.bathtube ||= Bathtube.new(args, x: 0, y: 0, w: state.world.w, h: 900)
     end
 
     def calc
         state.duck.calc
 
-        camera_x = state.duck.x + state.duck.w / 2
-        camera_y = state.duck.y + state.duck.h / 2
-        #camera_x = state.duck.x
-        #camera_y = state.duck.y
-        state.camera.calc(camera_x, camera_y)
+        follow_x = state.duck.x + state.duck.w / 2
+        follow_y = state.duck.y + state.duck.h / 2
+        state.camera.calc(x:follow_x, y: follow_y)
         state.background.calc
     end
 
     def render
-        outputs.solids << {x: 0, y:0, w: grid.w, h: grid.h, r: 200, g: 200, b: 200}
 
-        # scene
-        outputs[:scene].transient!
-        outputs[:scene].w = state.world.w
-        outputs[:scene].h = state.world.h
+        # FPS
+        args.outputs.labels << { x: 30, y: 30.from_top, text: "#{args.gtk.current_framerate.to_sf}" }
 
-        state.background.render
-
-        state.duck.render
-        state.water.render
-
-        state.camera.render
-    end
-
-    def render_background
-        
+        state.camera.render_in_world  [
+            state.background,
+            state.bathtube,
+            state.duck,
+            state.water
+        ]
     end
 end

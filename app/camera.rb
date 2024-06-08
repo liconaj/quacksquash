@@ -1,48 +1,43 @@
 class Camera
     attr_gtk
-    attr_accessor :scale, :scene_position
+    attr_accessor :viewport
 
-    def initialize args, x: 0, y: 0, scale: 1
+    def initialize args, x: 0, y: 0, zoom: 1
         @args = args
         @x = x
         @y = y
-        @scale = scale
-        @scene_position = {
-            x: grid.w/2 - (x * @scale),
-            y: grid.h/2 - (y * @scale),
-            w: state.world.w * @scale,
-            h: state.world.h * @scale,
+        @zoom = zoom
+        @offset_x = (grid.w - state.world.w) / 2
+        @offset_y = (grid.h - state.world.h) / 2
+    end
+
+    def viewport
+        {
+            x: @offset_x,
+            y: @offset_y,
+            scale:  @zoom
         }
     end
 
-    def calc x = @x, y = @y
-        @scene_position = {
-            x: grid.w/2 - (x * @scale),
-            y: grid.h/2 - (y * @scale),
-            w: state.world.w * @scale,
-            h: state.world.h * @scale,
-        }
+    def render_in_world objects
+        objects.each do |object|
+            translated_object = object.dup 
+            translated_object.x = object.x * viewport.scale - viewport.x
+            translated_object.y = object.y * viewport.scale - viewport.y
+            translated_object.w = object.w * viewport.scale
+            translated_object.h = object.h * viewport.scale
+            translated_object.render
+        end
+    end
 
+    def calc x: nil, y: nil
         left_limit = 0
-        right_limit = grid.w - state.world.w * @scale
-        down_limit = 0        
-        if @scene_position.x > left_limit
-            @scene_position.merge!(x: left_limit)
-        elsif @scene_position.x < (right_limit)
-            @scene_position.merge!(x: right_limit)
-        end
-        if @scene_position.y > down_limit
-            @scene_position.merge!(y: down_limit)
-        end
-    end
-
-    def render
-        outputs.sprites << {
-            x: @scene_position.x,
-            y: @scene_position.y,
-            w: @scene_position.w,
-            h: @scene_position.h,
-            path: :scene
-        }
+        right_limit = (state.world.w * @zoom - grid.w)
+        down_limit = 0
+        upper_limit = (state.world.h * @zoom - grid.h)
+        @offset_x = (x * @zoom) - grid.w/2
+        @offset_y = (y * @zoom) - grid.h/2
+        @offset_x = @offset_x.clamp(left_limit, right_limit > left_limit ? right_limit : left_limit)
+        @offset_y = @offset_y.clamp(down_limit, upper_limit > down_limit ? upper_limit : down_limit)
     end
 end

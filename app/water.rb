@@ -17,7 +17,7 @@ class Water
     end
 
     def render
-        outputs[:scene].primitives << {x: @x, y:@y, w:@w, h:@h, r:@r, g:@g, b:@b, a:@a}.solid!
-        outputs[:scene].sprites << {x: @x, y:@y, w:@w, h:@h, a:130, path:@path}
+        outputs.primitives << {x: @x, y:@y, w:@w, h:@h, r:@r, g:@g, b:@b, a:@a}.solid!
+        outputs.sprites << {x: @x, y:@y, w:@w, h:@h, a:130, path:@path}
     end
 end
