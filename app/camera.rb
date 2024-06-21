@@ -9,6 +9,8 @@ class Camera
         @zoom = zoom
         @offset_x = (grid.w - state.world.w) / 2
         @offset_y = (grid.h - state.world.h) / 2
+        @last_x = x
+        @last_y = y
     end
 
     def viewport
@@ -30,14 +32,20 @@ class Camera
         end
     end
 
-    def calc x: nil, y: nil
+    def calc x: @x, y: @y
+        
+        #new_zoom = 1.2-0.2*(x-@last_x).abs/10
+
         left_limit = 0
         right_limit = (state.world.w * @zoom - grid.w)
         down_limit = 0
         upper_limit = (state.world.h * @zoom - grid.h)
-        @offset_x = (x * @zoom) - grid.w/2
+
+        @offset_x = (x * @zoom) - grid.w/2 + (x - @last_x) * 20
         @offset_y = (y * @zoom) - grid.h/2
         @offset_x = @offset_x.clamp(left_limit, right_limit > left_limit ? right_limit : left_limit)
         @offset_y = @offset_y.clamp(down_limit, upper_limit > down_limit ? upper_limit : down_limit)
+        @last_x = x
+        @last_y = y
     end
 end

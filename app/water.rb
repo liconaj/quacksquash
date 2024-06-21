@@ -4,7 +4,7 @@ class Water
 
     def initialize(args, h: grid.h/2)
         @args = args
-        
+
         @x = 0
         @y = 0
         @h = h
@@ -14,6 +14,10 @@ class Water
         @b = 255
         @a = 30
         @path = "sprites/water_shades.png"
+    end
+
+    def level
+        @h
     end
 
     def render

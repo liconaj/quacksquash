@@ -13,54 +13,78 @@ class Duck
 
         @dx = 0
         @dy = 0
-        @friction = 0.01
+        @friction = 0.005
         @last_x = x
-        @acc = 0
+        @gravity = 1.5
+        @acc_y = 0
         @flip_dir = 0
+        @deep = 15
     end
 
     def handle_movement
-        left_limit = 0.03 * state.world.w
-        right_limit = 0.94 * state.world.w
+        left_limit = 0
+        right_limit = state.world.w - @w
 
-        max_speed = 10
+        max_speed = 15
         inc_speed = 0.2
-        
-        @dy = 0
+        moving = false
+        moviny_y = false
+
         @flip_dir = 0
         if inputs.right
-            if @x > right_limit - 200
-                @dx += inc_speed * 0.1
-            else
-                @dx += inc_speed
-            end
+            @dx += inc_speed
             @flip_dir += 1
+            moving = true
         end
         if inputs.left
-            if @x < left_limit + 200
-                @dx -= inc_speed * 0.1
-            else
-                @dx -= inc_speed
-            end
+            @dx -= inc_speed
             @flip_dir -= 1
+            moving = true
         end
-        if inputs.up
-            @dy += 5
-        end
-        if inputs.down
-            @dy -= 5
+        #if inputs.up
+        #    @dy += 5
+        #end
+        if inputs.down && (in_water || in_surface?)
+            @dy -= 7
+            moving_y = true
         end
 
-        @dx = @dx.clamp(-max_speed, max_speed)
+        old_dy = @dy
+
+        # Flotación
+        if !in_surface?
+            @dy -= @gravity
+            if in_water
+                if @dy > 0
+                    @dy += acc_flotation
+                else
+                    @dy += 8
+                end
+            end
+        elsif @dy.abs < 10
+            @dy *= 0.5
+        end
+
+        if @dy.abs > 0.1
+            @y += @dy
+            @y = @y.clamp(0.03 * state.world.h, state.world.h)
+        elsif in_surface?
+            stable_level = state.water.level - @deep
+            @dy = stable_level - @y
+            @y += @dy * 0.01
+        end
+
         @x += @dx
-        @y += @dy
+        @dx = @dx.clamp(-max_speed, max_speed)
 
         if @x < left_limit || @x > right_limit
-            @dx = -@dx * 0.4
+            @dx = -@dx * 0.6
         end
         @x = @x.clamp(left_limit, right_limit)
-        @y = @y.clamp(0.03 * state.world.h, state.world.h)
 
+        @dx *= (1-@friction)
+        #outputs.debug << "dy: #{@dy.abs}"
+        #outputs.debug << "level: #{(@y - state.water.level + 30).abs}"
     end
 
     def calc
@@ -72,5 +96,29 @@ class Duck
 
     def render
         outputs.sprites << self
+    end
+
+    def in_water
+        @y <= state.water.level - @deep
+    end
+
+    def in_surface?
+        (@y - state.water.level + @deep).abs <= 5
+    end
+
+    def acc_flotation
+        acc_1 = 2.5
+        acc_2 = 2
+        h_1 = 0
+        h_2 = state.water.level
+        d_acc = acc_2 - acc_1
+        d_h = h_2 - h_1
+        m = d_acc / d_h
+        h = @y
+        m * (h - h_1) + acc_1
+    end
+
+    def sgn(n)
+        n <=> 0
     end
 end
