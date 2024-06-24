@@ -23,7 +23,7 @@ class Camera
 
     def render_in_world objects
         objects.each do |object|
-            translated_object = object.dup 
+            translated_object = object.dup
             translated_object.x = object.x * viewport.scale - viewport.x
             translated_object.y = object.y * viewport.scale - viewport.y
             translated_object.w = object.w * viewport.scale
@@ -33,7 +33,7 @@ class Camera
     end
 
     def calc x: @x, y: @y
-        
+
         #new_zoom = 1.2-0.2*(x-@last_x).abs/10
 
         left_limit = 0
@@ -41,7 +41,7 @@ class Camera
         down_limit = 0
         upper_limit = (state.world.h * @zoom - grid.h)
 
-        @offset_x = (x * @zoom) - grid.w/2 + (x - @last_x) * 20
+        @offset_x = (x * @zoom) - grid.w/2 + (x - @last_x) * 5
         @offset_y = (y * @zoom) - grid.h/2
         @offset_x = @offset_x.clamp(left_limit, right_limit > left_limit ? right_limit : left_limit)
         @offset_y = @offset_y.clamp(down_limit, upper_limit > down_limit ? upper_limit : down_limit)

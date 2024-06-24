@@ -11,7 +11,7 @@ class Duck
       @flip_horizontally = true
       @path = "sprites/rubberduck.png"
 
-      @dx = 0
+      @dx =
       @dy = 0
       @friction = 0.005
       @last_x = x
@@ -25,6 +25,7 @@ class Duck
       @right_limit = state.world.w - @w
       @boosted = false
       @boosted_water = false
+      @positions = []
   end
 
   def calc
@@ -32,6 +33,7 @@ class Duck
       update_position
       update_velocity
       clamp_position
+      @positions << [@x, @y, @flip_horizontally]
       if @flip_dir != 0
           @flip_horizontally = @flip_dir >= 0
       end
@@ -57,7 +59,7 @@ class Duck
     end
 
     @dx *= (1-@friction)
-end
+  end
 
   def update_position
     @x += @dx
@@ -134,5 +136,9 @@ end
 
   def sgn(n)
       n <=> 0
+  end
+
+  def positions
+    @positions
   end
 end
